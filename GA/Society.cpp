@@ -108,9 +108,15 @@ int Society::getFitness()
 void Society::printFittest()
 {
 	cout << "Fittest gene: " << "\n";
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	for (unsigned i = 0; i < CHROMOSOMESIZE; i++)
 	{
+		if (!Society::society[fittestChromosomeIndex].genes[i])
+		{
+			SetConsoleTextAttribute(hConsole, 4);
+		}
 		cout << Society::society[fittestChromosomeIndex].genes[i] << " ";
+		SetConsoleTextAttribute(hConsole, 15);
 	}
 	cout << endl;
 }
