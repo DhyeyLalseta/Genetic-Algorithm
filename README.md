@@ -1,2 +1,7 @@
-# Genetic-Algorithm
-Developed my own genetic algorithm to learn the basics of the machine learning. Generates a society of chromosomes, which possess genes (aka vectors of 0's and 1's). Upon compilation, the fittest chromosome (fitness determined by number of 1's, which represent desirable traits) breeds with the second fittest, from which the offspring replaces the weakest chromosome. This breeding/crossover is determined by swapping genes up until a random point. There is also a random chance of mutation, which can either mutate an undesirable trait to desirable or vice-versa. Fitness is calculated after each crossover and mutation. Breeding and mutation is repeated in generations until convergence of the society (one chromosome possesses all desirable traits). One generation includes one round of breeding and one round of mutation. I am planning to migrate this theory and logic into python in the near future and develop a visualization for the algorithm.
+# genetic algorithm
+
+this is a re-do of one of my first ever programming projects, a genetic algorithm in C++, which i initially made around a year ago. the genetic algorithm is a machine learning optimization algorithm which mimics natural selection. 
+
+it was interesting to compare my previous implementation to this, and see how my thought process and coding practices have changed (like learning how git works, plus actually using .gitignore). my biggest regret is the way i implemented `calculate_individual_fitness`, as it's part of the `Society` class rather than a static method in `Individual` but it should be fine. 
+
+`make run` for the default args, if you want to test using your own `target` and `population size`, `make` then `./bin/main <target> <population_size>`.

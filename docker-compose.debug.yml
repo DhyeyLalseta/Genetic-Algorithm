@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  geneticalgorithm:
+    image: geneticalgorithm
+    build:
+      context: .
+      dockerfile: ./Dockerfile
