@@ -4,7 +4,7 @@
 #include <string>
 
 #include "individual.hpp"
-#include "utils.hpp"
+#include "utils.tpp"
 
 namespace IndividualNS
 {
@@ -59,7 +59,7 @@ namespace IndividualNS
     std::ostream &operator<<(std::ostream &ostr, const Individual &individual)
     {
         std::string genes(individual.m_Genes.begin(), individual.m_Genes.end());
-        ostr << "Genes: " << genes << ", fitness: " << individual.m_Fitness;
+        ostr << "\"" << genes << "\", fitness: " << individual.m_Fitness;
         return ostr;
     }
 } // namespace IndividualNS

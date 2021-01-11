@@ -5,7 +5,7 @@
 #include <string>
 
 #include "society.hpp"
-#include "utils.hpp"
+#include "utils.tpp"
 
 namespace SocietyNS
 {
