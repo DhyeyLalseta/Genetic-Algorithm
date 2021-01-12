@@ -13,14 +13,14 @@ namespace GA
 
     Society::Society(const std::string &target, const long population /*= 10*/)
     {
-        validate_target(target);
+        validate_target(std::move(target));
         m_Target = std::vector<char>(target.begin(), target.end());
         init_population(population);
     }
 
     Society::Society(const std::vector<char> &target, const long population /* = 10*/)
     {
-        validate_target(target);
+        validate_target(std::move(target));
         m_Target = target;
         init_population(population);
     }
@@ -37,13 +37,18 @@ namespace GA
 
     void Society::evolve()
     {
+        static const double mutation_prob = 0.3;
+
         const auto [first_offspring, second_offspring] = m_Population[0].crossover(m_Population[1]); // crossover fittest
-        m_Population.end()[-1] = second_offspring;
-        m_Population.end()[-2] = first_offspring;
+        m_Population.end()[-1] = std::move(second_offspring);
+        m_Population.end()[-2] = std::move(first_offspring);
 
         for (Individual &indv : m_Population)
         {
-            indv.mutate();
+            if (Utils::rand_bool(mutation_prob))
+            {
+                indv.mutate();
+            }
         }
 
         sort_population();

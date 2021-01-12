@@ -1,26 +1,33 @@
+#pragma once
+
 #include <utility>
 #include <random>
-
 #include "society.hpp"
 
 namespace Utils
 {
-    template <typename T>
-    T rand_within_gene_limit(const bool normalize = true, double probability = -1.0)
+    namespace
     {
-        using GA::GENE_LIMIT;
         static std::random_device rd;
-        static std::uniform_int_distribution<> index_dist(0, 100);
-        double rand = index_dist(rd);
-        if (normalize)
-        {
-            rand = (rand / 100.0 * (GENE_LIMIT.second - GENE_LIMIT.first)) + GENE_LIMIT.first;
-        }
-        else if (std::is_same<T, bool>::value && probability != -1.0) // T == bool
-        {
-            probability = (probability > 0.0 && probability < 1.0) ? probability : 1.0;
-            rand = (rand / 100.0) <= probability;
-        }
-        return rand;
+        static std::mt19937 twister(rd());
+    } // namespace
+
+    template <typename T>
+    T rand_within_bounds(T lower_bound, T upper_bound)
+    {
+        std::uniform_int_distribution<int> dist(lower_bound, upper_bound);
+        return dist(twister);
+    }
+
+    static inline bool rand_bool(double probability = 1.0)
+    {
+        static std::uniform_int_distribution<int> dist(0, 100);
+        return ((dist(twister)/100.0) <= probability);
+    }
+
+    template <typename T>
+    T rand_within_gene_limit()
+    {
+        return rand_within_bounds<int>(GA::GENE_LIMIT.first, GA::GENE_LIMIT.second);
     }
 } // namespace Utils

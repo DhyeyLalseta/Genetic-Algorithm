@@ -10,16 +10,15 @@
 
 namespace GA
 {
-    Individual::Individual(const std::vector<char> &genes, const std::shared_ptr<std::vector<char>> target)
+    Individual::Individual(const std::vector<char> &genes,
+                           const std::shared_ptr<std::vector<char>> &target) : m_Genes(std::move(genes)),
+                                                                               m_Target(std::move(target))
     {
-        m_Genes = genes;
-        m_Target = target;
         calc_fitness();
     }
 
-    Individual::Individual(const std::shared_ptr<std::vector<char>> target)
+    Individual::Individual(const std::shared_ptr<std::vector<char>> &target) : m_Target(std::move(target))
     {
-        m_Target = target;
         init_genes();
         calc_fitness();
     }
@@ -27,12 +26,10 @@ namespace GA
     void Individual::calc_fitness()
     {
         int fitness = 0;
-        char indv_gene, targ_gene;
 
-        for (auto const &var : boost::combine(m_Genes, *m_Target))
+        for (auto const &[individual_gene, target_gene] : boost::combine(m_Genes, *m_Target))
         {
-            boost::tie(indv_gene, targ_gene) = var;
-            if (indv_gene != targ_gene)
+            if (individual_gene != target_gene)
             {
                 fitness += 1;
             }
@@ -60,36 +57,31 @@ namespace GA
 
     void Individual::mutate()
     {
-        static const double prob = 0.1; // probability of mutation
+        static const double prob = 0.15; // probability of mutation
         for (char &gene : m_Genes)
         {
-            bool mutate = Utils::rand_within_gene_limit<bool>(false, prob);
+            int mutate = Utils::rand_bool(prob);
             if (mutate)
             {
                 gene = Utils::rand_within_gene_limit<char>();
             }
         }
-
         calc_fitness();
     }
 
     std::pair<Individual, Individual> Individual::crossover(const Individual &other) const
     {
-        std::vector<char> first_offspring, second_offspring, mate = other.m_Genes;
-        unsigned crossover_point = Utils::rand_within_gene_limit<unsigned>(false) % m_Genes.size();
-        for (unsigned i = 0; i < m_Genes.size(); i++)
-        {
-            if (i < crossover_point)
-            {
-                first_offspring.push_back(m_Genes[i]);
-                second_offspring.push_back(mate[i]);
-            }
-            else
-            {
-                first_offspring.push_back(mate[i]);
-                second_offspring.push_back(m_Genes[i]);
-            }
-        }
+        const std::size_t gene_size = m_Genes.size();
+        const std::vector<char> mate = other.m_Genes;
+
+        const std::size_t crossover_point = Utils::rand_within_bounds<size_t>(0, gene_size - 1);
+
+        std::vector<char> first_offspring(m_Genes.begin(), m_Genes.begin()+crossover_point);
+        first_offspring.insert(first_offspring.end(), mate.begin()+crossover_point, mate.end());
+
+        std::vector<char> second_offspring(mate.begin(), mate.begin()+crossover_point);
+        second_offspring.insert(second_offspring.end(), m_Genes.begin()+crossover_point, m_Genes.end());
+
         return {Individual(first_offspring, m_Target), Individual(second_offspring, m_Target)};
     }
 

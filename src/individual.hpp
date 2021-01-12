@@ -10,9 +10,9 @@ namespace GA
     {
     public:
         Individual() : m_Genes{}, m_Target(nullptr), m_Fitness(0){};
-        Individual(const std::vector<char> &genes) : m_Genes(genes), m_Target(nullptr), m_Fitness(0){};
-        Individual(const std::vector<char> &genes, const std::shared_ptr<std::vector<char>> target);
-        Individual(const std::shared_ptr<std::vector<char>> target);
+        Individual(const std::vector<char> &genes) : m_Genes(std::move(genes)), m_Target(nullptr), m_Fitness(0){};
+        Individual(const std::vector<char> &genes, const std::shared_ptr<std::vector<char>> &target);
+        Individual(const std::shared_ptr<std::vector<char>> &target);
 
         bool operator<(const Individual &other) const;
 
