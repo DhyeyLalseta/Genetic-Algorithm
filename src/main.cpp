@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     std::string target("test");
-    uint population_size = 250;
+    unsigned population_size = 250;
     switch (argc)
     {
     case 2:
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     default:
         break;
     }
-    SocietyNS::Society society(target, population_size);
+    GA::Society society(target, population_size);
     std::cout << society << std::endl;
     while (!society.converged())
     {

@@ -6,18 +6,21 @@
 namespace Utils
 {
     template <typename T>
-    T rand_within_gene_limit(double probability = 0.0)
+    T rand_within_gene_limit(const bool normalize = true, double probability = -1.0)
     {
-        using SocietyNS::GENE_LIMIT;
+        using GA::GENE_LIMIT;
         static std::random_device rd;
-        static std::uniform_int_distribution<> index_dist(GENE_LIMIT.first, GENE_LIMIT.second);
-        int rand = index_dist(rd);
-        if (!std::is_same<T, bool>::value)
+        static std::uniform_int_distribution<> index_dist(0, 100);
+        double rand = index_dist(rd);
+        if (normalize)
         {
-            return rand;
+            rand = (rand / 100.0 * (GENE_LIMIT.second - GENE_LIMIT.first)) + GENE_LIMIT.first;
         }
-        probability = (probability <= 1.0 && probability > 0.0) ? probability : 1.0;
-        const double min = GENE_LIMIT.second - ((double)(GENE_LIMIT.second - GENE_LIMIT.first) * probability);
-        return rand > min;
+        else if (std::is_same<T, bool>::value && probability != -1.0) // T == bool
+        {
+            probability = (probability > 0.0 && probability < 1.0) ? probability : 1.0;
+            rand = (rand / 100.0) <= probability;
+        }
+        return rand;
     }
 } // namespace Utils

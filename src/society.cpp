@@ -3,25 +3,29 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 #include "society.hpp"
 #include "utils.tpp"
 
-namespace SocietyNS
+namespace GA
 {
 
-    Society::Society(const std::string &target, uint population /*= 10*/)
+    Society::Society(const std::string &target, const long population /*= 10*/)
     {
+        validate_target(target);
         m_Target = std::vector<char>(target.begin(), target.end());
         init_population(population);
     }
 
-    Society::Society(const std::vector<char> &target, uint population /* = 10*/)
+    Society::Society(const std::vector<char> &target, const long population /* = 10*/)
     {
+        validate_target(target);
         m_Target = target;
         init_population(population);
     }
-    uint Society::generation() const
+
+    unsigned long Society::generation() const
     {
         return m_Generation;
     }
@@ -33,59 +37,56 @@ namespace SocietyNS
 
     void Society::evolve()
     {
-        using IndividualNS::Individual;
-        Individual offspring = m_Population[0].mate(m_Population[1]); // mate fittest
-        offspring.m_Fitness = calculate_individual_fitness(offspring);
-        m_Population.back() = offspring;
+        const auto [first_offspring, second_offspring] = m_Population[0].crossover(m_Population[1]); // crossover fittest
+        m_Population.end()[-1] = second_offspring;
+        m_Population.end()[-2] = first_offspring;
 
         for (Individual &indv : m_Population)
         {
             indv.mutate();
-
-            indv.m_Fitness = calculate_individual_fitness(indv);
         }
 
         sort_population();
         m_Generation++;
     }
 
-    void Society::init_population(const uint population_size /*= 10*/)
+    template <typename T>
+    void Society::validate_target(const T &target)
     {
-        m_Population.reserve(population_size);
-        for (uint i = 0; i < population_size; i++)
+        if (target.size() == 0)
         {
-            std::string genes;
-            for (uint i = 0; i < m_Target.size(); i++)
-            {
-                genes += Utils::rand_within_gene_limit<char>();
-            }
-            IndividualNS::Individual new_individual(genes);
-            new_individual.m_Fitness = calculate_individual_fitness(new_individual);
-            m_Population.push_back(new_individual);
+            throw std::length_error("Target is empty.");
         }
 
+        std::for_each(target.begin(), target.end(), [](const char &letter) {
+            if (letter < GENE_LIMIT.first || letter > GENE_LIMIT.second)
+            {
+                throw std::invalid_argument(std::string("Invalid target letter: \'") + (char)letter + "\'");
+            }
+        });
+    }
+    template void Society::validate_target<std::string>(const std::string &target);
+    template void Society::validate_target<std::vector<char>>(const std::vector<char> &target);
+
+    void Society::init_population(const long population_size /*= 10*/)
+    {
+        if (population_size < 4)
+        {
+            throw std::invalid_argument("Population size must be greater than 4");
+        }
+        m_Population.reserve(population_size);
+        IndividualFactory individual_factory(m_Target);
+
+        for (unsigned i = 0; i < population_size; i++)
+        {
+            m_Population.push_back(individual_factory.make_individual());
+        }
         sort_population();
     }
 
     void Society::sort_population()
     {
         std::sort(m_Population.begin(), m_Population.end());
-    }
-
-    int Society::calculate_individual_fitness(IndividualNS::Individual &individual)
-    {
-        int fitness = 0;
-        char indv_gene, targ_gene;
-
-        for (auto const &var : boost::combine(individual.m_Genes, m_Target))
-        {
-            boost::tie(indv_gene, targ_gene) = var;
-            if (indv_gene != targ_gene)
-            {
-                fitness += 1;
-            }
-        }
-        return fitness;
     }
 
     std::ostream &operator<<(std::ostream &ostr, const Society &society)
@@ -95,4 +96,4 @@ namespace SocietyNS
              << "\n\tTarget: " << std::string(society.m_Target.begin(), society.m_Target.end());
         return ostr;
     }
-} // namespace SocietyNS
+} // namespace GA
