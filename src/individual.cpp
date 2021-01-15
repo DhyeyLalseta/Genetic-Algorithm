@@ -71,16 +71,14 @@ namespace GA
 
     std::pair<Individual, Individual> Individual::crossover(const Individual &other) const
     {
-        const std::size_t gene_size = m_Genes.size();
         const std::vector<char> mate = other.m_Genes;
+        const size_t crossover_point = Utils::rand_within_bounds<size_t>(0, m_Genes.size() - 1);
 
-        const std::size_t crossover_point = Utils::rand_within_bounds<size_t>(0, gene_size - 1);
+        std::vector<char> first_offspring(m_Genes.begin(), m_Genes.begin() + crossover_point);
+        first_offspring.insert(first_offspring.end(), mate.begin() + crossover_point, mate.end());
 
-        std::vector<char> first_offspring(m_Genes.begin(), m_Genes.begin()+crossover_point);
-        first_offspring.insert(first_offspring.end(), mate.begin()+crossover_point, mate.end());
-
-        std::vector<char> second_offspring(mate.begin(), mate.begin()+crossover_point);
-        second_offspring.insert(second_offspring.end(), m_Genes.begin()+crossover_point, m_Genes.end());
+        std::vector<char> second_offspring(mate.begin(), mate.begin() + crossover_point);
+        second_offspring.insert(second_offspring.end(), m_Genes.begin() + crossover_point, m_Genes.end());
 
         return {Individual(first_offspring, m_Target), Individual(second_offspring, m_Target)};
     }

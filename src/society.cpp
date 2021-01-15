@@ -10,20 +10,17 @@
 
 namespace GA
 {
-
-    Society::Society(const std::string &target, const long population /*= 10*/)
-    {
-        validate_target(std::move(target));
-        m_Target = std::vector<char>(target.begin(), target.end());
-        init_population(population);
-    }
-
     Society::Society(const std::vector<char> &target, const long population /* = 10*/)
     {
-        validate_target(std::move(target));
+        validate_target(target);
         m_Target = target;
         init_population(population);
     }
+
+    Society::Society(const std::string &target, const long population /*= 10*/) : Society(std::vector<char>(
+                                                                                              target.begin(),
+                                                                                              target.end()),
+                                                                                          population) {}
 
     unsigned long Society::generation() const
     {
@@ -52,13 +49,13 @@ namespace GA
         }
 
         sort_population();
-        m_Generation++;
+        ++m_Generation;
     }
 
     template <typename T>
     void Society::validate_target(const T &target)
     {
-        if (target.size() == 0)
+        if (target.empty())
         {
             throw std::length_error("Target is empty.");
         }
